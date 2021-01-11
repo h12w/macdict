@@ -39,6 +39,84 @@ CFArrayRef dicmd_copy_short_names() {
   return names;
 }
 
-CFStringRef dicmd_copy_definition(char *term, dicmd_output_format_t format) {
-  return CFSTR("hello world");
+DCSDictionaryRef copy_dic_by_name(CFStringRef name) {
+  CFSetRef dics = DCSCopyAvailableDictionaries();
+  CFIndex count = CFSetGetCount(dics);
+  DCSDictionaryRef dics_arr[count];
+  CFSetGetValues(dics, (void *)dics_arr);
+  DCSDictionaryRef dic = NULL;
+  for (int i = 0; i < count; i++) {
+    DCSDictionaryRef d = dics_arr[i];
+    CFStringRef n = DCSDictionaryGetShortName(d);
+    if (CFStringCompare(name, n, 0) == kCFCompareEqualTo) {
+      dic = d;
+      break;
+    }
+
+    n = DCSDictionaryGetName(d);
+    if (CFStringCompare(name, n, 0) == kCFCompareEqualTo) {
+      dic = d;
+      break;
+    }
+  }
+  if (dic) {
+    CFRetain(dic);
+    CFRelease(dics);
+  }
+
+  return dic;
+}
+
+CFStringRef dicmd_copy_definition(CFStringRef term, CFStringRef dic_name, dicmd_output_format_t format) {
+  DCSDictionaryRef dic = copy_dic_by_name(dic_name);
+  if (!dic) {
+    _apply_cstr(dic_name, ^(char *cstr) {
+	fprintf(stderr, "Dictionary `%s' can not be found", cstr);
+      });
+    return CFSTR("");
+  }
+
+  CFRange range = DCSGetTermRangeInString(dic, term, 0);
+  if (range.location == kCFNotFound) {
+    _apply_cstr(term, ^(char *term_cstr) {
+	_apply_cstr(dic_name, ^(char *dic_name_cstr){
+	    fprintf(stderr, "`%s' can not be found in dictionary `%s'", term_cstr, dic_name_cstr);
+	  });
+      });
+    return CFSTR("");
+  }
+
+  CFStringRef searchStr = CFStringCreateWithSubstring(kCFAllocatorDefault, term, range);
+  CFArrayRef records = DCSCopyRecordsForSearchString(dic, searchStr, NULL, NULL);
+  CFIndex count = CFArrayGetCount(records);
+  CFTypeRef record_vals[count];
+  CFArrayGetValues(records, CFRangeMake(0, count), (void *)record_vals);
+  CFMutableStringRef ret = CFStringCreateMutable(kCFAllocatorDefault, 0);
+  for (CFIndex i = 0; i < count; i++) {
+    CFStringRef data = DCSRecordCopyData(record_vals[i], format);
+    CFStringAppend(ret, data);
+    if (i < count - 1) CFStringAppend(ret, CFSTR("\n\n---\n\n"));
+    CFRelease(data);
+  }
+
+  CFRelease(searchStr);
+  CFRelease(records);
+  return ret;
+}
+
+
+void _apply_cstr(CFStringRef cfstr, void (^apply)(char *)) {
+  char *cstr = (char *)CFStringGetCStringPtr(cfstr, kCFStringEncodingUTF8);
+  Boolean needToFree = false;
+  if (!cstr) {
+    CFIndex len = CFStringGetLength(cfstr);
+    CFIndex size = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8) + 1;
+    char *buf = (char *)malloc(size);
+    if (CFStringGetCString(cfstr, buf, size, kCFStringEncodingUTF8)) {
+      cstr = buf;
+      needToFree = true;
+    }
+  }
+  apply(cstr);
+  if (needToFree) free(cstr);
 }

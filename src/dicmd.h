@@ -9,4 +9,6 @@ typedef enum {
 
 CFArrayRef dicmd_copy_names(void);
 CFArrayRef dicmd_copy_short_names(void);
-CFStringRef dicmd_copy_definition(char *term, dicmd_output_format_t format);
+CFStringRef dicmd_copy_definition(CFStringRef term, CFStringRef dic_name, dicmd_output_format_t format);
+
+void _apply_cstr(CFStringRef cfstr, void (^apply)(char *));
