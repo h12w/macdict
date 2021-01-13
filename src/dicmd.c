@@ -94,8 +94,12 @@ CFStringRef dicmd_copy_definition(CFStringRef term, CFStringRef dic_name, dicmd_
   CFMutableStringRef ret = CFStringCreateMutable(kCFAllocatorDefault, 0);
   for (CFIndex i = 0; i < count; i++) {
     CFStringRef data = DCSRecordCopyData(record_vals[i], format);
-    CFStringAppend(ret, data);
-    if (i < count - 1) CFStringAppend(ret, CFSTR("\n\n---\n\n"));
+    if (format == dicmd_output_format_text) {
+      CFStringAppend(ret, data);
+      if (i < count - 1) CFStringAppend(ret, CFSTR("\n\n---\n\n"));
+    } else {
+      CFStringAppendFormat(ret, NULL, CFSTR("<template>%@</template>"), data);
+    }
     CFRelease(data);
   }
 
