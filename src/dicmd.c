@@ -16,7 +16,7 @@ void set_applier(const void *value, void *context) {
     isLongName
     ? DCSDictionaryGetName(dic)
     : DCSDictionaryGetShortName(dic);
-  CFArrayAppendValue(names, name);
+  if (name) CFArrayAppendValue(names, name);
 }
 
 CFArrayRef dicmd_copy_names() {
@@ -48,6 +48,7 @@ DCSDictionaryRef copy_dic_by_name(CFStringRef name) {
   for (int i = 0; i < count; i++) {
     DCSDictionaryRef d = dics_arr[i];
     CFStringRef n = DCSDictionaryGetShortName(d);
+    if (!n) continue;
     if (CFStringCompare(name, n, 0) == kCFCompareEqualTo) {
       dic = d;
       break;
@@ -59,6 +60,7 @@ DCSDictionaryRef copy_dic_by_name(CFStringRef name) {
       break;
     }
   }
+
   if (dic) {
     CFRetain(dic);
     CFRelease(dics);

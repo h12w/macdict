@@ -89,6 +89,7 @@ int main(int argc, char *argv[]) {
   CFStringRef dic_name_cfstr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, dic_name, kCFStringEncodingUTF8, kCFAllocatorNull);
   CFStringRef def = dicmd_copy_definition(term_cfstr, dic_name_cfstr, format);
   _apply_cstr(def, ^(char *cstr) { fprintf(stdout, "%s", cstr); });
+  CFRelease(def);
   CFRelease(term_cfstr);
   CFRelease(dic_name_cfstr);
   return EXIT_SUCCESS;
