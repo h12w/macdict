@@ -13,15 +13,15 @@ void list_dics(Boolean is_long_name) {
 void usage() {
   fprintf(stderr, "\
 Usage:\n\
-dicmd -t term -d dictionary_name -f format\n\
+macdict -t term -d dictionary_name -f format\n\
 -t: required, the term you need to lookup\n\
--d: optional, default is `English', use `dicmd -l 0/1' to get available dictionaries.\n\
--f: optional, default is 4\n\
-1: pure html\n\
-2: html with app css\n\
-3: html with popover css\n\
-4: text\n\n\
-dicmd -l 0/1\n\
+-d: optional, default is `English', use `macdict -l 0/1' to get available dictionaries.\n\
+-f: optional, default is 3\n\
+0: pure html\n\
+1: html with app css\n\
+2: html with popover css\n\
+3: text\n\n\
+macdict -l 0/1\n\
 list available dictionary names, 0 for short, 1 for long names");
 }
 

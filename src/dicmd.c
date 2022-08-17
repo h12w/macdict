@@ -100,7 +100,7 @@ CFStringRef dicmd_copy_definition(CFStringRef term, CFStringRef dic_name, dicmd_
       CFStringAppend(ret, data);
       if (i < count - 1) CFStringAppend(ret, CFSTR("\n\n---\n\n"));
     } else {
-      CFStringAppendFormat(ret, NULL, CFSTR("<template>%@</template>"), data);
+      CFStringAppendFormat(ret, NULL, CFSTR("%@"), data);
     }
     CFRelease(data);
   }
